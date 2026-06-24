@@ -15,6 +15,7 @@ import de.oliver.fancynpcs.api.events.NpcsLoadedEvent;
 import de.oliver.fancynpcs.api.skins.SkinData;
 import de.oliver.fancynpcs.api.skins.SkinLoadException;
 import de.oliver.fancynpcs.api.utils.NpcEquipmentSlot;
+import de.oliver.fancynpcs.listeners.NpcViewRefresh;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -23,6 +24,7 @@ import org.bukkit.WorldCreator;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.ApiStatus;
@@ -556,6 +558,15 @@ public class NpcManagerImpl implements NpcManager {
     private void setLoaded() {
         isLoaded = true;
         new NpcsLoadedEvent().callEvent();
+        refreshOnlineJavaViewersAfterLoad();
+    }
+
+    private void refreshOnlineJavaViewersAfterLoad() {
+        FancyNpcs.getInstance().getScheduler().runTaskLater(null, 20L, () -> {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                NpcViewRefresh.refreshJavaView(player);
+            }
+        });
     }
 
     public void reloadNpcs() {

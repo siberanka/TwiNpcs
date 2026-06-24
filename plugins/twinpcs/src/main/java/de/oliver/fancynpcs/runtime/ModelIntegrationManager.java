@@ -32,12 +32,14 @@ final class ModelIntegrationManager {
     private static final int MAX_CACHED_MODEL_IDS = 10_000;
     private static final int MAX_RETURNED_SUGGESTIONS = 512;
     private static final long SUGGESTION_CACHE_NANOS = 10_000_000_000L;
+    private static final long RETRY_LOG_NANOS = 30_000_000_000L;
     private static final Pattern SAFE_MODEL_ID = Pattern.compile("[A-Za-z0-9_.:/-]{1,128}");
 
     private final FancyNpcs plugin;
     private final Map<String, ModelHandle> handles = new ConcurrentHashMap<>();
     private final Map<NpcModelProvider, Boolean> warnedUnavailable = new EnumMap<>(NpcModelProvider.class);
     private final Map<NpcModelProvider, SuggestionCacheEntry> suggestionCache = new ConcurrentHashMap<>();
+    private final Map<String, Long> nextRetryLogNanos = new ConcurrentHashMap<>();
     private final NamespacedKey mythicMarker;
     private final NamespacedKey modelAnchorMarker;
 
@@ -48,19 +50,48 @@ final class ModelIntegrationManager {
     }
 
     void afterCreate(Npc npc) {
+        createOrReplace(npc, true);
+    }
+
+    boolean usesModel(Npc npc) {
         if (npc.getData().isRuntimeView()) {
-            return;
+            return false;
+        }
+
+        NpcModelProvider provider = npc.getData().getModelProvider();
+        return provider != null && provider != NpcModelProvider.VANILLA;
+    }
+
+    boolean ensureReady(Npc npc) {
+        ModelHandle handle = handles.get(npc.getData().getId());
+        if (isUsable(handle)) {
+            return true;
+        }
+
+        if (!usesModel(npc)) {
+            return false;
+        }
+
+        if (handle != null) {
+            close(npc);
+        }
+        return createOrReplace(npc, shouldLogRetry(npc));
+    }
+
+    private boolean createOrReplace(Npc npc, boolean logFailures) {
+        if (!usesModel(npc)) {
+            close(npc);
+            return false;
         }
 
         close(npc);
         NpcModelProvider provider = npc.getData().getModelProvider();
-        if (provider == NpcModelProvider.VANILLA) {
-            return;
-        }
 
         if (!isProviderEnabled(provider)) {
-            warnUnavailable(provider);
-            return;
+            if (logFailures) {
+                warnUnavailable(provider);
+            }
+            return false;
         }
 
         try {
@@ -72,16 +103,21 @@ final class ModelIntegrationManager {
             };
             if (handle != null) {
                 handles.put(npc.getData().getId(), handle);
+                nextRetryLogNanos.remove(npc.getData().getId());
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     handle.hide(player);
                 }
+                return true;
             }
         } catch (ReflectiveOperationException | RuntimeException | LinkageError exception) {
-            plugin.getFancyLogger().error(
-                    "Could not apply " + provider + " model '" + npc.getData().getModelId()
-                            + "' to NPC '" + npc.getData().getName() + "': " + exception.getMessage()
-            );
+            if (logFailures) {
+                plugin.getFancyLogger().error(
+                        "Could not apply " + provider + " model '" + npc.getData().getModelId()
+                                + "' to NPC '" + npc.getData().getName() + "': " + exception.getMessage()
+                );
+            }
         }
+        return false;
     }
 
     boolean hasModel(Npc npc) {
@@ -134,6 +170,7 @@ final class ModelIntegrationManager {
         }
         handles.clear();
         suggestionCache.clear();
+        nextRetryLogNanos.clear();
     }
 
     Collection<ModelHandle> handles() {
@@ -237,6 +274,25 @@ final class ModelIntegrationManager {
         if (warnedUnavailable.putIfAbsent(provider, true) == null) {
             plugin.getFancyLogger().warn(provider + " integration is configured but its plugin is not enabled.");
         }
+    }
+
+    private boolean isUsable(ModelHandle handle) {
+        if (handle == null) {
+            return false;
+        }
+
+        Entity entity = handle.entity();
+        return entity == null || entity.isValid();
+    }
+
+    private boolean shouldLogRetry(Npc npc) {
+        long now = System.nanoTime();
+        Long nextLog = nextRetryLogNanos.get(npc.getData().getId());
+        if (nextLog != null && now < nextLog) {
+            return false;
+        }
+        nextRetryLogNanos.put(npc.getData().getId(), now + RETRY_LOG_NANOS);
+        return true;
     }
 
     private ModelHandle createBetterModel(Npc npc) throws ReflectiveOperationException {

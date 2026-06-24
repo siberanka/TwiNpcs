@@ -58,7 +58,9 @@ public final class NpcViewRefresh {
 
         UUID playerId = player.getUniqueId();
         long token = REFRESH_COUNTER.incrementAndGet();
-        REFRESH_TOKENS.put(playerId, token);
+        if (REFRESH_TOKENS.putIfAbsent(playerId, token) != null) {
+            return;
+        }
 
         VisibilityTracker visibilityTracker = plugin.getVisibilityTracker();
         if (visibilityTracker != null) {

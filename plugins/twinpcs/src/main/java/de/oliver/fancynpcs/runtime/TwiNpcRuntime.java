@@ -50,10 +50,35 @@ public final class TwiNpcRuntime implements NpcRuntime, Listener {
         return bedrockDetector.isBedrock(player);
     }
 
+    public void refreshNpc(Npc npc) {
+        Location location = safeClone(npc.getData().getLocation());
+        plugin.getScheduler().runTask(location, () -> {
+            List<Player> players = List.copyOf(Bukkit.getOnlinePlayers());
+            for (Player player : players) {
+                npc.remove(player);
+            }
+
+            close(npc);
+            npc.create();
+
+            for (Player player : players) {
+                if (!player.isOnline()) {
+                    continue;
+                }
+                npc.resetViewerState(player);
+                npc.checkAndUpdateVisibility(player);
+            }
+        });
+    }
+
     @Override
     public void afterCreate(Npc npc) {
-        modelEntities.entrySet().removeIf(entry -> entry.getValue().getData().getId().equals(npc.getData().getId()));
         modelManager.afterCreate(npc);
+        registerModelEntity(npc);
+    }
+
+    private void registerModelEntity(Npc npc) {
+        modelEntities.entrySet().removeIf(entry -> entry.getValue().getData().getId().equals(npc.getData().getId()));
         Entity modelEntity = modelManager.getModelEntity(npc);
         if (modelEntity != null) {
             modelEntities.put(modelEntity.getUniqueId(), npc);
@@ -89,7 +114,7 @@ public final class TwiNpcRuntime implements NpcRuntime, Listener {
             return true;
         }
 
-        if (modelManager.hasModel(npc)) {
+        if (modelManager.usesModel(npc)) {
             ViewKey key = new ViewKey(npc.getData().getId(), player.getUniqueId());
             long state = setDesiredView(key, true);
             runAtNpc(npc, () -> {
@@ -102,6 +127,11 @@ public final class TwiNpcRuntime implements NpcRuntime, Listener {
                 }
 
                 try {
+                    if (!modelManager.ensureReady(npc)) {
+                        clearFailedSpawn(npc, player, key, state);
+                        return;
+                    }
+                    registerModelEntity(npc);
                     modelManager.show(npc, player);
                 } catch (RuntimeException | LinkageError exception) {
                     clearFailedSpawn(npc, player, key, state);

@@ -180,8 +180,7 @@ public class SkinManagerImpl implements SkinManager, Listener {
             }
 
             if (updated) {
-                npc.removeForAll();
-                npc.spawnForAll();
+                FancyNpcs.getInstance().getNpcRuntime().refreshNpc(npc);
                 FancyNpcs.getInstance().getFancyLogger().info("Updated skin data for NPC: " + npc.getData().getName());
             }
         }
