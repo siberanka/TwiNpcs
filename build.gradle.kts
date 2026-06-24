@@ -7,7 +7,7 @@ plugins {
 
 allprojects {
     group = "de.oliver"
-    description = "Minecraft plugins of FancyInnovations"
+    description = "TwiNpcs, a FancyNpcs fork"
 
     repositories {
         mavenLocal()
@@ -22,5 +22,17 @@ allprojects {
         maven(url = "https://repo.lushplugins.org/releases")
         maven(url = "https://repo.papermc.io/repository/maven-public/")
 //        maven(url = "https://jitpack.io")
+    }
+
+    configurations.configureEach {
+        resolutionStrategy.eachDependency {
+            if (requested.group == "net.kyori"
+                && requested.name == "adventure-text-serializer-ansi"
+                && requested.version.isNullOrBlank()
+            ) {
+                useVersion("5.1.1")
+                because("Paper dev bundles omit the version and rely on their platform constraint")
+            }
+        }
     }
 }

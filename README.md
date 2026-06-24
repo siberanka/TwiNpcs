@@ -1,69 +1,48 @@
-# 
+# TwiNpcs
 
-<div align="center">
+TwiNpcs is a packet-based Minecraft NPC plugin forked from
+[FancyNpcs](https://github.com/FancyMcPlugins/FancyNpcs).
 
-![](docs/src/static/logos-and-banners/fancyinnovations-banner.png)
+Maintainers and authors include the original FancyNpcs authors and `siberanka`.
 
-[![Modrinth](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/available/modrinth_vector.svg)](https://modrinth.com/user/Oliver)
-[![Hangar](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/available/hangar_vector.svg)](https://hangar.papermc.io/Oliver)
-[![Unsupported spigot](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/unsupported/spigot_vector.svg)]()
+## Features
 
-[![Website](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/documentation/website_vector.svg)](https://fancyinnovations.com)
-[![Documentation](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/documentation/ghpages_vector.svg)](https://fancyinnovations.com/docs/minecraft-plugins)
-[![discord-plural](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/social/discord-plural_46h.png)](https://discord.gg/ZUgYCEJUEx)
+- Vanilla player and mob NPCs
+- Optional BetterModel, ModelEngine, and MythicMobs visuals
+- Per-NPC vanilla mob fallback for Geyser/Floodgate players
+- Optional Bedrock-only position offset
+- Persistent NPC configuration and packet-based visibility
+- Paper and Folia support across the included Minecraft implementations
 
+## Commands
 
-[![CodeFactor](https://www.codefactor.io/repository/github/fancyinnovations/fancyplugins/badge)](https://www.codefactor.io/repository/github/fancyinnovations/fancyplugins)
-[![Lines of Code](https://tokei.rs/b1/github/fancyinnovations/fancyplugins?category=code)](https://github.com/fancyinnovations/fancyplugins)
+```text
+/twinpcs version
+/twinpcs reload
+/twinpcs save
 
-</div>
+/npc model <npc> <vanilla|bettermodel|modelengine|mythicmobs> [model]
+/npc bedrock <npc> type <vanilla_mob|player>
+/npc bedrock <npc> skin <player|uuid|url|file|@none|@mirror> [--slim]
+/npc bedrock <npc> offset <x> <y> <z>
+/npc bedrock <npc> interactions <true|false>
+/npc bedrock <npc> clear
+```
 
-## FancyPlugins
+BetterModel, ModelEngine, MythicMobs, Floodgate, and Geyser are optional.
 
-This is a [monorepo](docs/src/development-guidelines/monorepo.md) for all plugins, libraries, and tools of FancyInnovations.
+## Build
 
-**Plugins:**
-- FancyNpcs: create and manage fancy looking npcs
-- FancyHolograms: create fancy looking holograms
-- FancyDialogs: create and manage fancy looking dialogs which were added in 1.21.6 (work in progress)
-- FancyVisuals: plugin to customize all visual components of the game (work in progress)
+Java 21 is used for Minecraft 1.21.x implementations and Java 25 for
+Minecraft 26.x and the final plugin:
 
-**Libraries:**
-- Common: common classes and utilities
-- JDB: json database library
-- Plugin Tests: testing library for plugins
-- Packets: packet handling library (also called FancySitula)
+```powershell
+.\gradlew.bat :plugins:twinpcs:shadowJar
+```
 
-**Tools:**
-- Quick E2E: generate a quick end-to-end environment for testing
+The output is written to `plugins/twinpcs/build/libs/`.
 
-## Usage
+## License
 
-The monorepo uses Gradle as a build system. See [monorepo.md](docs/src/development-guidelines/monorepo.md) for more information.
-
-To see specific usage for each package, see the README.md in the respective package directory.
-
-## Contributing
-
-You can contribute to this repository by reporting bugs, suggesting features, or contributing code. 
-Please read the [contributing guidelines](docs/src/development-guidelines/contributing.md) for more information.
-
----
-
-[All contributors of this repository:](https://github.com/FancyInnovations/FancyPlugins/graphs/contributors)
-
-<a href = "https://github.com/FancyInnovations/FancyPlugins/graphs/contributors">
-  <img src = "https://contrib.rocks/image?repo=FancyInnovations/FancyPlugins" alt="All contributors of this repository"/>
-</a>
-
-**[All contributors of the old FancyNpcs repository:](https://github.com/FancyMcPlugins/FancyNpcs/graphs/contributors)**
-
-<a href = "https://github.com/FancyMcPlugins/FancyNpcs/graphs/contributors">
-  <img src = "https://contrib.rocks/image?repo=FancyMcPlugins/FancyNpcs" alt="All contributors of the old FancyNpcs repository"/>
-</a>
-
-**[All contributors of the old FancyHolograms repository:](https://github.com/FancyMcPlugins/FancyHolograms/graphs/contributors)**
-
-<a href = "https://github.com/FancyMcPlugins/FancyHolograms/graphs/contributors">
-  <img src = "https://contrib.rocks/image?repo=FancyMcPlugins/FancyHolograms" alt="All contributors of the old FancyHolograms repository"/>
-</a>
+This fork remains under the repository's MIT license and retains attribution
+to FancyNpcs and its contributors.

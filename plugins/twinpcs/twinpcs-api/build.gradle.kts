@@ -1,23 +1,28 @@
 plugins {
-    id("java")
+    id("java-library")
     id("maven-publish")
-    id("com.github.johnrengelman.shadow")
+    id("com.gradleup.shadow")
 }
 
-group = "de.oliver"
-description = "Library for plugin configuration"
+val minecraftVersion = "1.21.11"
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
-    compileOnly("de.oliver.FancyAnalytics:logger:0.0.10")
-    compileOnly("org.jetbrains:annotations:26.1.0")
+    compileOnly("dev.folia:folia-api:$minecraftVersion-R0.1-SNAPSHOT")
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:6.1.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:6.1.0")
-    testImplementation("org.junit.platform:junit-platform-console-standalone:6.1.0")
+    compileOnly(project(":libraries:common"))
+    compileOnly(project(":libraries:config"))
+    compileOnly("de.oliver.FancyAnalytics:logger:0.0.10")
+
+    implementation("org.lushplugins.chatcolorhandler:paper:8.1.1")
 }
 
 tasks {
+    shadowJar {
+        archiveClassifier.set("")
+
+        relocate("org.lushplugins.chatcolorhandler", "de.oliver.fancynpcs.libs.chatcolorhandler")
+    }
+
     publishing {
         repositories {
             maven {
@@ -85,39 +90,30 @@ tasks {
         publications {
             create<MavenPublication>("maven") {
                 groupId = "de.oliver"
-                artifactId = "config"
-                version = getCFGVersion()
+                artifactId = "TwiNpcs"
+                version = getFNVersion()
                 from(project.components["java"])
             }
         }
     }
 
-    compileJava {
-        options.encoding = Charsets.UTF_8.name()
-        options.release.set(21)
-    }
-
     java {
         withSourcesJar()
         withJavadocJar()
+        toolchain.languageVersion.set(JavaLanguageVersion.of(21))
     }
 
     javadoc {
         options.encoding = Charsets.UTF_8.name()
     }
-    processResources {
-        filteringCharset = Charsets.UTF_8.name()
-    }
 
-    test {
-        useJUnitPlatform()
+    compileJava {
+        options.encoding = Charsets.UTF_8.name()
+        options.release = 21
+
     }
 }
 
-java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
-}
-
-fun getCFGVersion(): String {
-    return file("VERSION").readText()
+fun getFNVersion(): String {
+    return file("../VERSION").readText().trim()
 }
