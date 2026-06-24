@@ -11,6 +11,8 @@ public interface FancyNpcsConfig {
 
     boolean isMuteVersionNotification();
 
+    boolean isHardcodedPrefixEnabled();
+
     boolean isEnableAutoSave();
 
     int getAutoSaveInterval();

@@ -213,6 +213,7 @@ public class FancyNpcs extends JavaPlugin implements FancyNpcsPlugin {
                 "#E36666",
                 "<color:#ba8813>[</color><gradient:#ffae00:#fffb00:#ffae00>TwiNpcs</gradient><color:#ba8813>]</color> <gray>"
         );
+        applyTextConfigSettings();
         translator = new Translator(textConfig);
         translator.loadLanguages(getDataFolder().getAbsolutePath());
         final Language selectedLanguage = translator.getLanguages().stream()
@@ -260,6 +261,7 @@ public class FancyNpcs extends JavaPlugin implements FancyNpcsPlugin {
         pluginManager.registerEvents(new PlayerQuitListener(), instance);
         pluginManager.registerEvents(new PlayerTeleportListener(), instance);
         pluginManager.registerEvents(new PlayerChangedWorldListener(), instance);
+        pluginManager.registerEvents(new PlayerRespawnListener(), instance);
         pluginManager.registerEvents(skinManager, instance);
         pluginManager.registerEvents(new PlayerLoadedListener(), this);
         pluginManager.registerEvents(npcRuntime, this);
@@ -341,6 +343,10 @@ public class FancyNpcs extends JavaPlugin implements FancyNpcsPlugin {
             npcManager.saveNpcs(true);
         }
 
+        if (visibilityTracker != null) {
+            visibilityTracker.clear();
+        }
+        NpcViewRefresh.clear();
         npcRuntime.shutdown();
         npcThread.shutdownNow();
         fancyLogger.info("TwiNpcs has been disabled.");
@@ -467,6 +473,12 @@ public class FancyNpcs extends JavaPlugin implements FancyNpcsPlugin {
 
     public TextConfig getTextConfig() {
         return textConfig;
+    }
+
+    public void applyTextConfigSettings() {
+        if (textConfig != null) {
+            textConfig.setPrefixEnabled(config.isHardcodedPrefixEnabled());
+        }
     }
 
     @Override

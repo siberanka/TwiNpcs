@@ -46,6 +46,10 @@ public final class TwiNpcRuntime implements NpcRuntime, Listener {
         return modelManager.suggestions(provider, input);
     }
 
+    public boolean isBedrockPlayer(Player player) {
+        return bedrockDetector.isBedrock(player);
+    }
+
     @Override
     public void afterCreate(Npc npc) {
         modelEntities.entrySet().removeIf(entry -> entry.getValue().getData().getId().equals(npc.getData().getId()));

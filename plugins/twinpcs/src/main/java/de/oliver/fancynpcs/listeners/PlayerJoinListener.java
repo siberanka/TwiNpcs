@@ -19,9 +19,7 @@ public class PlayerJoinListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         for (Npc npc : FancyNpcs.getInstance().getNpcManagerImpl().getAllNpcs()) {
-            npc.getIsVisibleForPlayer().put(event.getPlayer().getUniqueId(), false);
-            npc.getIsLookingAtPlayer().put(event.getPlayer().getUniqueId(), false);
-            npc.getIsTeamCreated().put(event.getPlayer().getUniqueId(), false);
+            npc.resetViewerState(event.getPlayer());
         }
 
         // don't spawn the npc for player if he just joined

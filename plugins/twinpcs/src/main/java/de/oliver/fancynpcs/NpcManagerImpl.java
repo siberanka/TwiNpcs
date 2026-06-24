@@ -80,6 +80,9 @@ public class NpcManagerImpl implements NpcManager {
 
     public void removeNpc(Npc npc) {
         FancyNpcs.getInstance().getNpcRuntime().close(npc);
+        if (FancyNpcs.getInstance().getVisibilityTracker() != null) {
+            FancyNpcs.getInstance().getVisibilityTracker().removeNpc(npc.getData().getId());
+        }
         npcs.remove(npc.getData().getId());
 
         YamlConfiguration npcConfig = YamlConfiguration.loadConfiguration(npcConfigFile);

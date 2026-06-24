@@ -261,6 +261,23 @@ public abstract class Npc {
         return isTeamCreated;
     }
 
+    public void resetViewerState(UUID viewerId) {
+        isVisibleForPlayer.put(viewerId, false);
+        isLookingAtPlayer.put(viewerId, false);
+        isTeamCreated.put(viewerId, false);
+    }
+
+    public void resetViewerState(Player player) {
+        resetViewerState(player.getUniqueId());
+    }
+
+    public void clearViewerState(UUID viewerId) {
+        isVisibleForPlayer.remove(viewerId);
+        isLookingAtPlayer.remove(viewerId);
+        isTeamCreated.remove(viewerId);
+        lastPlayerInteraction.remove(viewerId);
+    }
+
     public Map<UUID, Boolean> getIsVisibleForPlayer() {
         return isVisibleForPlayer;
     }

@@ -3,6 +3,7 @@ package de.oliver.fancynpcs.listeners;
 import de.oliver.fancynpcs.FancyNpcs;
 import de.oliver.fancynpcs.api.Npc;
 import de.oliver.fancynpcs.api.events.NpcStopLookingEvent;
+import de.oliver.fancynpcs.tracker.VisibilityTracker;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -15,11 +16,13 @@ public class PlayerQuitListener implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         FancyNpcs.getInstance().getNpcRuntime().removePlayer(event.getPlayer());
         UUID uuid = event.getPlayer().getUniqueId();
+        VisibilityTracker visibilityTracker = FancyNpcs.getInstance().getVisibilityTracker();
+        if (visibilityTracker != null) {
+            visibilityTracker.removePlayer(uuid);
+        }
+        NpcViewRefresh.removePlayer(uuid);
         for (Npc npc : FancyNpcs.getInstance().getNpcManagerImpl().getAllNpcs()) {
-            npc.getIsVisibleForPlayer().remove(uuid);
-            npc.getIsLookingAtPlayer().remove(uuid);
-            npc.getIsTeamCreated().remove(uuid);
-            npc.getLastPlayerInteraction().remove(uuid);
+            npc.clearViewerState(uuid);
             new NpcStopLookingEvent(npc, event.getPlayer()).callEvent();
         }
     }

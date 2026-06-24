@@ -30,6 +30,11 @@ public class FancyNpcsConfigImpl implements FancyNpcsConfig {
     private boolean muteVersionNotification;
 
     /**
+     * Indicates whether TwiNpcs should prepend its built-in prefix to prefixed messages.
+     */
+    private boolean hardcodedPrefixEnabled;
+
+    /**
      * Indicates whether autosave is enabled.
      */
     private boolean enableAutoSave;
@@ -120,6 +125,9 @@ public class FancyNpcsConfigImpl implements FancyNpcsConfig {
         muteVersionNotification = (boolean) ConfigHelper.getOrDefault(config, "mute_version_notification", false);
         config.setInlineComments("mute_version_notification", List.of("Whether version notifications are muted."));
 
+        hardcodedPrefixEnabled = (boolean) ConfigHelper.getOrDefault(config, "hardcoded_prefix_enabled", true);
+        config.setInlineComments("hardcoded_prefix_enabled", List.of("Whether TwiNpcs should prepend its built-in prefix to messages that use withPrefix()."));
+
         enableAutoSave = (boolean) ConfigHelper.getOrDefault(config, "enable_autosave", true);
         config.setInlineComments("enable_autosave", List.of("Whether autosave is enabled."));
 
@@ -176,6 +184,7 @@ public class FancyNpcsConfigImpl implements FancyNpcsConfig {
         }
 
         FancyNpcs.getInstance().saveConfig();
+        FancyNpcs.getInstance().applyTextConfigSettings();
     }
 
     public String getLanguage() {
@@ -192,6 +201,10 @@ public class FancyNpcsConfigImpl implements FancyNpcsConfig {
 
     public boolean isMuteVersionNotification() {
         return muteVersionNotification;
+    }
+
+    public boolean isHardcodedPrefixEnabled() {
+        return hardcodedPrefixEnabled;
     }
 
     public boolean isEnableAutoSave() {
