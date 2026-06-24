@@ -29,6 +29,7 @@ dependencies {
     implementation(project(":plugins:twinpcs:twinpcs-api")) {
         isTransitive = false
     }
+    implementation(project(":plugins:twinpcs:implementation_26_3"))
     implementation(project(":plugins:twinpcs:implementation_26_2"))
     implementation(project(":plugins:twinpcs:implementation_26_1_2"))
     implementation(project(":plugins:twinpcs:implementation_1_21_11"))
@@ -113,7 +114,7 @@ paper {
 
 tasks {
     runServer {
-        minecraftVersion("26.2")
+        minecraftVersion("26.3")
         //serverJar(file("/Users/oliver/Workspace/paper/paper-server/build/libs/paper-bundler-26.2.build.1-alpha.jar"))
 
 

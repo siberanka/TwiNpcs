@@ -19,6 +19,7 @@ rootProject.name = "TwiNpcs"
 
 include(":plugins:twinpcs")
 include(":plugins:twinpcs:twinpcs-api")
+include(":plugins:twinpcs:implementation_26_3")
 include(":plugins:twinpcs:implementation_26_2")
 include(":plugins:twinpcs:implementation_26_1_2")
 include(":plugins:twinpcs:implementation_1_21_11")
